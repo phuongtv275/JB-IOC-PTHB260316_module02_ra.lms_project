@@ -23,7 +23,7 @@ public class AdminView {
             int choice = ConsoleUtil.readInt("  Lựa chọn: ");
 
             switch (choice) {
-                case 1 -> ConsoleUtil.printWarning("Chức năng Quản lý khóa học — sẽ triển khai ở buổi 2.");
+                case 1 -> new CourseView().show();
                 case 2 -> ConsoleUtil.printWarning("Chức năng Quản lý học viên — sẽ triển khai ở buổi 3.");
                 case 3 -> ConsoleUtil.printWarning("Chức năng Quản lý đăng ký — sẽ triển khai ở buổi 4.");
                 case 4 -> ConsoleUtil.printWarning("Chức năng Thống kê — sẽ triển khai ở buổi 4.");
