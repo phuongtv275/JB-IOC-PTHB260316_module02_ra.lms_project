@@ -123,9 +123,13 @@ CREATE INDEX idx_enrollment_course  ON enrollment(course_id);
 -- 6. Dữ liệu mẫu (seed data)
 -- ============================================================
 
--- Tài khoản Admin mặc định (password: Admin@123 — cần hash trước khi dùng thật)
+-- Tài khoản Admin mặc định (password: admin)
 INSERT INTO student (name, dob, email, sex, phone, role, password)
 VALUES ('Administrator', '1990-01-01', 'admin@lms.com', TRUE, NULL, 'ADMIN', '$2a$12$LaDPC3r7FTbo0HFStKuRoubBcD26sgVhxqtyjIvUrBbUTfU91hEvy');
+
+-- Tài khoản Student mặc định (password: student)
+INSERT INTO student (name, dob, email, sex, phone, role, password)
+VALUES ('Student', '2003-01-01', 'student@lms.com', FALSE, '0987654321', 'STUDENT', '$2a$12$yjKCy1OggEpXvRpuvHPs9e.6AoIdE6RRshNyx.HE8NEjImM5QEcii');
 
 -- Một số khóa học mẫu
 INSERT INTO course (name, duration, instructor) VALUES
