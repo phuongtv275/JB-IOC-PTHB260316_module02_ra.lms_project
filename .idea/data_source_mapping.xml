@@ -3,6 +3,8 @@
   <component name="DataSourcePerFileMappings">
     <file url="file://$PROJECT_DIR$/src/main/java/dao/impl/CourseDAOImpl.java" value="2653c110-25fd-4d78-b417-faec2a5b4985" />
     <file url="file://$PROJECT_DIR$/src/main/java/dao/impl/StudentDAOImpl.java" value="2653c110-25fd-4d78-b417-faec2a5b4985" />
-    <file url="file://$PROJECT_DIR$/src/main/resources/script.sql" value="2653c110-25fd-4d78-b417-faec2a5b4985" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/course_procedures.sql" value="2653c110-25fd-4d78-b417-faec2a5b4985" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/database_create.sql" value="2653c110-25fd-4d78-b417-faec2a5b4985" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/student_procedures.sql" value="2653c110-25fd-4d78-b417-faec2a5b4985" />
   </component>
 </project>

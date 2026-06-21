@@ -101,4 +101,13 @@ public class Student {
         this.password = password;
         this.createdAt = createdAt;
     }
+
+    public String getSexDisplay()   { return sex ? "Nam" : "Nữ"; }
+
+    @Override
+    public String toString() {
+        return String.format("Student{id=%d, name='%s', email='%s', role=%s}",
+                id, name, email, role);
+    }
+
 }

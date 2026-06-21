@@ -59,4 +59,10 @@ public class Course {
 
     public Course() {
     }
+
+    @Override
+    public String toString() {
+        return String.format("Course{id=%d, name='%s', duration=%dh, instructor='%s'}",
+                id, name, duration, instructor);
+    }
 }
