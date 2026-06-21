@@ -6,7 +6,7 @@
 -- Enrollment View: danh sách tất cả các khóa học với tên khóa học và tên sinh viên
 CREATE OR REPLACE VIEW vw_enrollment_join_student_course AS
 SELECT e.id, e.student_id, e.course_id, e.registered_at, e.status,
-       c.name AS course_name, s.name AS student_name
+       c.name AS course_name, s.name AS student_name, c.instructor
 FROM enrollment e
     JOIN course c ON e.course_id = c.id
     JOIN student s ON e.student_id = s.id;
@@ -36,6 +36,17 @@ BEGIN
         SELECT * FROM vw_enrollment_join_student_course
         WHERE student_id = p_student_id
         ORDER BY id;
+END;
+$$;
+
+-- Danh sách toàn bộ enrollments
+CREATE OR REPLACE PROCEDURE get_all_enrollments (
+    INOUT p_cursors REFCURSOR
+) LANGUAGE plpgsql AS
+$$
+BEGIN
+    OPEN p_cursors FOR
+    SELECT * FROM vw_enrollment_join_student_course;
 END;
 $$;
 
@@ -80,5 +91,29 @@ BEGIN
     UPDATE enrollment
     SET status = p_status::enrollment_status
     WHERE id = p_id;
+END;
+$$;
+
+-- Xóa enrollment theo id enrollment
+CREATE OR REPLACE PROCEDURE delete_enroll_by_id (p_id INT)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    DELETE FROM enrollment
+    WHERE id = p_id;
+END;
+$$;
+
+-- Tìm khóa học theo id khóa học từ view vw_enrollment_join_student_course
+CREATE OR REPLACE PROCEDURE search_course_by_course_id_join_enrollment_student(
+    INOUT p_cursors REFCURSOR,
+    p_course_id INT
+) LANGUAGE plpgsql
+AS $$
+BEGIN
+    OPEN p_cursors FOR
+    SELECT * FROM vw_enrollment_join_student_course
+    WHERE course_id = p_course_id
+    ORDER BY registered_at DESC;
 END;
 $$;

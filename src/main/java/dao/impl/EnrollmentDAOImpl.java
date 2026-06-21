@@ -60,6 +60,27 @@ public class EnrollmentDAOImpl implements IEnrollmentDAO {
         return list;
     }
 
+    @Override
+    public List<Enrollment> getEnrollments() {
+        List<Enrollment> list = new ArrayList<>();
+        String sql = "call get_all_enrollments(?)";
+        try (Connection conn = DBUtil.getConnection()) {
+            conn.setAutoCommit(false);
+            try (CallableStatement cstmt = conn.prepareCall(sql)) {
+                cstmt.registerOutParameter(1, Types.REF_CURSOR);
+                cstmt.execute();
+                try (ResultSet rs = (ResultSet) cstmt.getObject(1)) {
+                    while (rs.next()) list.add(mapRow(rs));
+                }
+            }
+            conn.commit();
+            conn.setAutoCommit(true);
+        } catch (SQLException e) {
+            System.err.println("[EnrollmentDAO] getEnrollments lỗi: " + e.getMessage());
+        }
+        return list;
+    }
+
     // ── findByStudentIdSorted ─────────────────────────────────────
 
     @Override
@@ -143,6 +164,44 @@ public class EnrollmentDAOImpl implements IEnrollmentDAO {
         }
     }
 
+    // ── deleteById ────────────────────────────────────────────────
+
+    @Override
+    public void deleteById(int id) {
+        String sql = "call delete_enroll_by_id(?)";
+        try (CallableStatement cstmt = DBUtil.getConnection().prepareCall(sql)) {
+            cstmt.setInt(1, id);
+            int rows = cstmt.executeUpdate();
+            System.out.println("[EnrollmentDAO] deleteById id=" + id + " — rows affected: " + rows);
+        } catch (SQLException e) {
+            System.err.println("[EnrollmentDAO] deleteById lỗi: " + e.getMessage());
+        }
+    }
+
+    // ── findByCourseId (Admin xem SV đăng ký theo khóa) ─────────────
+
+    @Override
+    public List<Enrollment> findByCourseId(int courseId) {
+        List<Enrollment> list = new ArrayList<>();
+        String sql = "call search_course_by_course_id_join_enrollment_student(?, ?)";
+        try (Connection conn = DBUtil.getConnection()) {
+            conn.setAutoCommit(false);
+            try (CallableStatement cstmt = conn.prepareCall(sql)) {
+                cstmt.registerOutParameter(1, Types.REF_CURSOR);
+                cstmt.setInt(2, courseId);
+                cstmt.execute();
+                try (ResultSet rs = (ResultSet) cstmt.getObject(1)) {
+                    while (rs.next()) list.add(mapRow(rs));
+                }
+            }
+            conn.commit();
+            conn.setAutoCommit(true);
+        } catch (SQLException e) {
+            System.err.println("[EnrollmentDAO] findByCourseId lỗi: " + e.getMessage());
+        }
+        return list;
+    }
+
     // ── Row mapper ────────────────────────────────────────────────
 
     private Enrollment mapRow(ResultSet rs) throws SQLException {
@@ -150,6 +209,7 @@ public class EnrollmentDAOImpl implements IEnrollmentDAO {
         e.setId(rs.getInt("id"));
         e.setStudentId(rs.getInt("student_id"));
         e.setCourseId(rs.getInt("course_id"));
+        e.setInstructor(rs.getString("instructor"));
         e.setRegisteredAt(rs.getTimestamp("registered_at").toLocalDateTime());
         e.setStatus(EnrollmentStatus.valueOf(rs.getString("status")));
         e.setCourseName(rs.getString("course_name"));

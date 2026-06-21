@@ -13,11 +13,12 @@ public class Enrollment {
 
     private String studentName;
     private String courseName;
+    private String instructor;
 
     public Enrollment() {
     }
 
-    public Enrollment(int id, int studentId, int courseId, LocalDateTime registeredAt, EnrollmentStatus enrollmentStatus, String studentName, String courseName) {
+    public Enrollment(int id, int studentId, int courseId, LocalDateTime registeredAt, EnrollmentStatus enrollmentStatus, String studentName, String courseName, String instructor) {
         this.id = id;
         this.studentId = studentId;
         this.courseId = courseId;
@@ -25,6 +26,7 @@ public class Enrollment {
         this.enrollmentStatus = enrollmentStatus;
         this.studentName = studentName;
         this.courseName = courseName;
+        this.instructor = instructor;
     }
 
     public int getId() {
@@ -81,5 +83,13 @@ public class Enrollment {
 
     public void setCourseName(String courseName) {
         this.courseName = courseName;
+    }
+
+    public String getInstructor() {
+        return instructor;
+    }
+
+    public void setInstructor(String instructor) {
+        this.instructor = instructor;
     }
 }
