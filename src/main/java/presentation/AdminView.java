@@ -26,7 +26,7 @@ public class AdminView {
                 case 1 -> new CourseView().show();
                 case 2 -> new StudentManagementView().show();
                 case 3 -> new EnrollmentManagementView().show();
-                case 4 -> ConsoleUtil.printWarning("Chức năng Thống kê — sẽ triển khai ở buổi 4.");
+                case 4 -> new StatisticsView().show();
                 case 0 -> {
                     ConsoleUtil.printInfo("Đã đăng xuất.");
                     return;

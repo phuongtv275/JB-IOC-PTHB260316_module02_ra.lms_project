@@ -117,3 +117,85 @@ BEGIN
     ORDER BY registered_at DESC;
 END;
 $$;
+
+-- Thống kê tổng số khóa học ───────────────────────
+CREATE OR REPLACE FUNCTION fn_count_all_courses()
+    RETURNS INT
+    LANGUAGE plpgsql
+AS $$
+DECLARE
+    total INT;
+BEGIN
+    SELECT COUNT(*) INTO total FROM course;
+    RETURN total;
+END;
+$$;
+
+-- Thống kê tổng số học viên (role = STUDENT)
+CREATE OR REPLACE FUNCTION fn_count_all_students()
+    RETURNS INT
+    LANGUAGE plpgsql
+AS $$
+DECLARE
+    total INT;
+BEGIN
+    SELECT COUNT(*) INTO total FROM student WHERE role = 'STUDENT';
+    RETURN total;
+END;
+$$;
+
+-- Thống kê số SV đăng ký theo từng khóa
+CREATE OR REPLACE FUNCTION fn_count_students_per_course()
+    RETURNS refcursor
+    LANGUAGE plpgsql
+AS $$
+DECLARE
+    cur refcursor := 'count_per_course_cursor';
+BEGIN
+    OPEN cur FOR
+        SELECT c.id, c.name, COUNT(e.id) AS cnt
+        FROM course c
+                 LEFT JOIN enrollment e ON e.course_id = c.id AND e.status != 'CANCEL'
+        GROUP BY c.id, c.name
+        ORDER BY c.id ASC;
+    RETURN cur;
+END;
+$$;
+
+-- Thống kê top N khóa đông SV nhất
+CREATE OR REPLACE FUNCTION fn_top_courses_by_enrollment(p_limit INT)
+    RETURNS refcursor
+    LANGUAGE plpgsql
+AS $$
+DECLARE
+    cur refcursor := 'top_courses_cursor';
+BEGIN
+    OPEN cur FOR
+        SELECT c.id, c.name, COUNT(e.id) AS cnt
+        FROM course c
+                 LEFT JOIN enrollment e ON e.course_id = c.id AND e.status != 'CANCEL'
+        GROUP BY c.id, c.name
+        ORDER BY cnt DESC, c.id ASC
+        LIMIT p_limit;
+    RETURN cur;
+END;
+$$;
+
+-- Thống kê khóa học có > threshold SV
+CREATE OR REPLACE FUNCTION fn_courses_with_enrollment_above(p_threshold INT)
+    RETURNS refcursor
+    LANGUAGE plpgsql
+AS $$
+DECLARE
+    cur refcursor := 'courses_above_cursor';
+BEGIN
+    OPEN cur FOR
+        SELECT c.id, c.name, COUNT(e.id) AS cnt
+        FROM course c
+                 LEFT JOIN enrollment e ON e.course_id = c.id AND e.status != 'CANCEL'
+        GROUP BY c.id, c.name
+        HAVING COUNT(e.id) > p_threshold
+        ORDER BY cnt DESC, c.id ASC;
+    RETURN cur;
+END;
+$$;
