@@ -13,7 +13,7 @@ public class CourseView {
 
     // ── Bảng cột ─────────────────────────────────────────────────
     private static final String[] HEADERS = {"ID", "Tên khóa học", "Thời lượng (h)", "Giảng viên", "Ngày tạo"};
-    private static final int[]    WIDTHS  = {4, 30, 14, 22, 12};
+    private static final int[]    WIDTHS  = {4, 45, 14, 22, 12};
 
     // ── Menu chính ────────────────────────────────────────────────
 
@@ -50,10 +50,7 @@ public class CourseView {
     // ── 1. Hiển thị danh sách ─────────────────────────────────────
 
     private void showList(List<Course> courses) {
-        ConsoleUtil.printTitle("DANH SÁCH KHÓA HỌC");
-        String[][] rows = toRows(courses);
-        ConsoleUtil.printTable(HEADERS, rows, WIDTHS);
-        ConsoleUtil.printInfo("Tổng số: " + courses.size() + " khóa học.");
+        ConsoleUtil.printPaginatedTable("DANH SÁCH KHÓA HỌC", HEADERS, toRows(courses), WIDTHS);
     }
 
     // ── 2. Thêm mới ───────────────────────────────────────────────
@@ -65,11 +62,15 @@ public class CourseView {
         String duration   = ConsoleUtil.readLine("  Thời lượng (h) : ");
         String instructor = ConsoleUtil.readLine("  Giảng viên     : ");
 
-        String error = courseService.addCourse(name, duration, instructor);
-        if (error != null) {
-            ConsoleUtil.printError(error);
-        } else {
-            ConsoleUtil.printSuccess("Thêm khóa học thành công!");
+        try {
+            String error = courseService.addCourse(name, duration, instructor);
+            if (error != null) {
+                ConsoleUtil.printError(error);
+            } else {
+                ConsoleUtil.printSuccess("Thêm khóa học thành công!");
+            }
+        } catch (RuntimeException e) {
+            ConsoleUtil.printError("Lỗi hệ thống: " + e.getMessage());
         }
     }
 

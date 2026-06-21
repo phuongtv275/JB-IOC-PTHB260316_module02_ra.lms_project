@@ -62,11 +62,12 @@ public class CourseDAOImpl implements ICourseDAO {
     @Override
     public void save(Course course) {
         String sql = "call add_course(?, ?, ?, ?)";
-        try (CallableStatement cstmt = DBUtil.getConnection().prepareCall(sql)) {
+        try (Connection conn = DBUtil.getConnection();
+             CallableStatement cstmt = conn.prepareCall(sql)) {
             cstmt.setString(1, course.getName());
             cstmt.setInt(2, course.getDuration());
             cstmt.setString(3, course.getInstructor());
-            cstmt.registerOutParameter(4, java.sql.Types.INTEGER);
+            cstmt.registerOutParameter(4, Types.INTEGER);
             cstmt.executeUpdate();
 
             int generatedId = cstmt.getInt(4);
@@ -74,6 +75,7 @@ public class CourseDAOImpl implements ICourseDAO {
             System.out.println("[CourseDAO] Thêm khóa học thành công, id=" + course.getId());
         } catch (SQLException e) {
             System.err.println("[CourseDAO] save lỗi: " + e.getMessage());
+            throw new RuntimeException("Không thể thêm khóa học.", e);
         }
     }
 
@@ -82,7 +84,8 @@ public class CourseDAOImpl implements ICourseDAO {
     @Override
     public void update(Course course) {
         String sql = "call update_course(?, ?, ?, ?)";
-        try (CallableStatement cstmt = DBUtil.getConnection().prepareCall(sql)) {
+        try (Connection conn = DBUtil.getConnection();
+             CallableStatement cstmt = conn.prepareCall(sql)) {
             cstmt.setInt(1, course.getId());
             cstmt.setString(2, course.getName());
             cstmt.setInt(3, course.getDuration());
@@ -91,6 +94,7 @@ public class CourseDAOImpl implements ICourseDAO {
             System.out.println("[CourseDAO] update — rows affected: " + rows);
         } catch (SQLException e) {
             System.err.println("[CourseDAO] update lỗi: " + e.getMessage());
+            throw new RuntimeException("Không thể cập nhật khóa học.", e);
         }
     }
 
@@ -99,12 +103,14 @@ public class CourseDAOImpl implements ICourseDAO {
     @Override
     public void deleteById(int id) {
         String sql = "call delete_course(?)";
-        try (CallableStatement cstmt = DBUtil.getConnection().prepareCall(sql)) {
+        try (Connection conn = DBUtil.getConnection();
+             CallableStatement cstmt = conn.prepareCall(sql)) {
             cstmt.setInt(1, id);
             int rows = cstmt.executeUpdate();
             System.out.println("[CourseDAO] delete id=" + id + " — rows affected: " + rows);
         } catch (SQLException e) {
             System.err.println("[CourseDAO] deleteById lỗi: " + e.getMessage());
+            throw new RuntimeException("Không thể xóa khóa học.", e);
         }
     }
 
@@ -136,13 +142,13 @@ public class CourseDAOImpl implements ICourseDAO {
 
     @Override
     public List<Course> findAllSorted(String field, String direction) {
-        // Whitelist để tránh SQL injection
         String safeField = field.equalsIgnoreCase("name") ? "name" : "id";
         String safeDir   = direction.equalsIgnoreCase("DESC") ? "DESC" : "ASC";
 
         List<Course> list = new ArrayList<>();
         String sql = "SELECT id, name, duration, instructor, created_at FROM course ORDER BY " + safeField + " " + safeDir;
-        try (PreparedStatement ps = DBUtil.getConnection().prepareStatement(sql);
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) list.add(mapRow(rs));
         } catch (SQLException e) {
@@ -159,7 +165,7 @@ public class CourseDAOImpl implements ICourseDAO {
         c.setName(rs.getString("name"));
         c.setDuration(rs.getInt("duration"));
         c.setInstructor(rs.getString("instructor"));
-        c.setCreatedAt(rs.getDate("created_at").toLocalDate());
+        c.setCreatedAt(rs.getDate("created_at") != null ? rs.getDate("created_at").toLocalDate() : null);
         return c;
     }
 }

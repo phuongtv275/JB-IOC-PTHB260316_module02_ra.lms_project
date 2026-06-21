@@ -86,25 +86,28 @@ public class StudentView {
             }
         }
 
-        ConsoleUtil.printTitle("DANH SÁCH KHÓA HỌC");
-        ConsoleUtil.printTable(COURSE_HEADERS, toCourseRows(courses), COURSE_WIDTHS);
-        ConsoleUtil.printInfo("Tổng số: " + courses.size() + " khóa học.");
+        ConsoleUtil.printPaginatedTable("DANH SÁCH KHÓA HỌC", COURSE_HEADERS, toCourseRows(courses), COURSE_WIDTHS);
     }
 
     // ── 2. Đăng ký khóa học ───────────────────────────────────────
 
     private void registerCourse() {
         ConsoleUtil.printTitle("ĐĂNG KÝ KHÓA HỌC");
-        ConsoleUtil.printTable(COURSE_HEADERS, toCourseRows(courseService.getAllCourses()), COURSE_WIDTHS);
+        ConsoleUtil.printPaginatedTable("DANH SÁCH KHÓA HỌC", COURSE_HEADERS,
+                toCourseRows(courseService.getAllCourses()), COURSE_WIDTHS);
 
         int courseId = ConsoleUtil.readInt("  Nhập ID khóa học muốn đăng ký (0 để hủy): ");
         if (courseId == 0) return;
 
-        String error = enrollmentService.registerCourse(student.getId(), courseId);
-        if (error != null) {
-            ConsoleUtil.printError(error);
-        } else {
-            ConsoleUtil.printSuccess("Đăng ký thành công! Trạng thái: WAITING (chờ xác nhận).");
+        try {
+            String error = enrollmentService.registerCourse(student.getId(), courseId);
+            if (error != null) {
+                ConsoleUtil.printError(error);
+            } else {
+                ConsoleUtil.printSuccess("Đăng ký thành công! Trạng thái: WAITING (chờ xác nhận).");
+            }
+        } catch (RuntimeException e) {
+            ConsoleUtil.printError("Lỗi hệ thống: " + e.getMessage());
         }
     }
 
@@ -136,9 +139,8 @@ public class StudentView {
             }
         }
 
-        ConsoleUtil.printTitle("KHÓA HỌC ĐÃ ĐĂNG KÝ — " + student.getName());
-        ConsoleUtil.printTable(ENROLLMENT_HEADERS, toEnrollmentRows(enrollments), ENROLLMENT_WIDTHS);
-        ConsoleUtil.printInfo("Tổng số: " + enrollments.size() + " đăng ký.");
+        ConsoleUtil.printPaginatedTable("KHÓA HỌC ĐÃ ĐĂNG KÝ — " + student.getName(),
+                ENROLLMENT_HEADERS, toEnrollmentRows(enrollments), ENROLLMENT_WIDTHS);
     }
 
     // ── 4. Hủy đăng ký ───────────────────────────────────────────
