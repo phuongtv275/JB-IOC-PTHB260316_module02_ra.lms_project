@@ -61,7 +61,7 @@ AS $$
 BEGIN
     UPDATE student
     SET name = p_name, dob = p_dob, sex = p_sex, phone = p_phone
-    WHERE id = p_id;
+    WHERE role = 'STUDENT' AND id = p_id;
 END;
 $$;
 
@@ -131,5 +131,19 @@ CREATE OR REPLACE PROCEDURE check_email_exists(
 BEGIN
     OPEN p_result FOR
         SELECT 1 FROM student WHERE email = p_email AND id != p_exclude_id;
+END;
+$$;
+
+-- Chỉnh sửa mật khẩu sinh viên
+CREATE OR REPLACE PROCEDURE update_student_password(
+    p_id INT,
+    p_password VARCHAR(255)
+)
+    LANGUAGE plpgsql
+AS $$
+BEGIN
+    UPDATE student
+    SET password = p_password
+    WHERE role = 'STUDENT' AND id = p_id;
 END;
 $$;

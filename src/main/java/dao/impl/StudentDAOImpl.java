@@ -283,6 +283,22 @@ public class StudentDAOImpl implements IStudentDAO {
         return false;
     }
 
+    // ── updatePassword ────────────────────────────────────────────
+
+    @Override
+    public void updatePassword(int id, String newHashedPassword) {
+        String sql = "call update_student_password(?, ?)";
+        try (CallableStatement cstmt = DBUtil.getConnection().prepareCall(sql)) {
+            cstmt.setInt(1, id);
+            cstmt.setString(2, newHashedPassword);
+
+            int rows = cstmt.executeUpdate();
+            System.out.println("[StudentDAO] updatePassword id=" + id + " — rows affected: " + rows);
+        } catch (SQLException e) {
+            System.err.println("[StudentDAO] updatePassword lỗi: " + e.getMessage());
+        }
+    }
+
     // ── Row mapper ────────────────────────────────────────────────
 
     private Student mapRow(ResultSet rs) throws SQLException {

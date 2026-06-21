@@ -36,5 +36,7 @@ public interface IStudentDAO {
 
     /** Kiểm tra email đã tồn tại — dùng validate unique, excludeId để bỏ qua chính bản ghi đang sửa */
     boolean existsByEmail(String email, int excludeId);
+
+    void updatePassword(int id, String newHashedPassword);
 }
 

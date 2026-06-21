@@ -1,6 +1,6 @@
 package model;
 
-import enums.Status;
+import enums.EnrollmentStatus;
 
 import java.time.LocalDateTime;
 
@@ -9,7 +9,7 @@ public class Enrollment {
     private int studentId;
     private int courseId;
     private LocalDateTime registeredAt;
-    private Status status;
+    private EnrollmentStatus enrollmentStatus;
 
     private String studentName;
     private String courseName;
@@ -17,12 +17,12 @@ public class Enrollment {
     public Enrollment() {
     }
 
-    public Enrollment(int id, int studentId, int courseId, LocalDateTime registeredAt, Status status, String studentName, String courseName) {
+    public Enrollment(int id, int studentId, int courseId, LocalDateTime registeredAt, EnrollmentStatus enrollmentStatus, String studentName, String courseName) {
         this.id = id;
         this.studentId = studentId;
         this.courseId = courseId;
         this.registeredAt = registeredAt;
-        this.status = status;
+        this.enrollmentStatus = enrollmentStatus;
         this.studentName = studentName;
         this.courseName = courseName;
     }
@@ -59,12 +59,12 @@ public class Enrollment {
         this.registeredAt = registeredAt;
     }
 
-    public Status getStatus() {
-        return status;
+    public EnrollmentStatus getStatus() {
+        return enrollmentStatus;
     }
 
-    public void setStatus(Status status) {
-        this.status = status;
+    public void setStatus(EnrollmentStatus enrollmentStatus) {
+        this.enrollmentStatus = enrollmentStatus;
     }
 
     public String getStudentName() {

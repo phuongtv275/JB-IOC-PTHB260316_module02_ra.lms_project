@@ -235,6 +235,38 @@ public class StudentServiceImpl implements IStudentService {
     public List<Student> getSortedStudents(String field, String direction) {
         return studentDAO.findAllSorted(field, direction);
     }
+    // ── changePassword ────────────────────────────────────────────
+
+    @Override
+    public String changePassword(int studentId, String oldPassword, String newPassword, String confirmPassword) {
+        if (oldPassword == null || oldPassword.isBlank())
+            return "Mật khẩu cũ không được để trống.";
+        if (newPassword == null || newPassword.isBlank())
+            return "Mật khẩu mới không được để trống.";
+        if (confirmPassword == null || confirmPassword.isBlank())
+            return "Xác nhận mật khẩu không được để trống.";
+
+        Optional<Student> studentOpt = studentDAO.findById(studentId);
+        if (studentOpt.isEmpty())
+            return "Không tìm thấy tài khoản.";
+
+        Student student = studentOpt.get();
+
+        if (!PasswordUtil.verify(oldPassword, student.getPassword()))
+            return "Mật khẩu cũ không đúng.";
+
+        if (!newPassword.equals(confirmPassword))
+            return "Mật khẩu mới và xác nhận mật khẩu không khớp.";
+
+        if (newPassword.equals(oldPassword))
+            return "Mật khẩu mới phải khác mật khẩu cũ.";
+
+        if (newPassword.length() < 6)
+            return "Mật khẩu mới phải có ít nhất 6 ký tự.";
+
+        studentDAO.updatePassword(studentId, PasswordUtil.hash(newPassword));
+        return null;
+    }
 
     // ── Helper ────────────────────────────────────────────────────
 
