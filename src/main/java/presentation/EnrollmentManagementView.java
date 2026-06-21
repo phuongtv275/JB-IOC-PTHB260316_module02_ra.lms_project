@@ -24,7 +24,7 @@ public class EnrollmentManagementView {
     private static final int[]    ENROLLMENT_WIDTHS  = {6, 24, 19, 12};
 
     private static final String[] WAITING_ENROLLMENT_HEADERS = {"ID ĐK", "Học viên", "Khóa học", "Giảng viên", "Ngày đăng ký", "Trạng thái"};
-    private static final int[]    WAITING_ENROLLMENT_WIDTHS  = {6, 24, 30, 24, 19, 12};
+    private static final int[]    WAITING_ENROLLMENT_WIDTHS  = {6, 24, 45, 24, 19, 12};
 
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
@@ -56,7 +56,8 @@ public class EnrollmentManagementView {
 
     private void viewEnrollmentsByCourse() {
         ConsoleUtil.printTitle("CHỌN KHÓA HỌC");
-        ConsoleUtil.printTable(COURSE_HEADERS, toCourseRows(courseService.getAllCourses()), COURSE_WIDTHS);
+        ConsoleUtil.printPaginatedTable("DANH SÁCH KHÓA HỌC", COURSE_HEADERS,
+                toCourseRows(courseService.getAllCourses()), COURSE_WIDTHS);
 
         int courseId = ConsoleUtil.readInt("  Nhập ID khóa học (0 để hủy): ");
         if (courseId == 0) return;
@@ -68,17 +69,17 @@ public class EnrollmentManagementView {
         }
 
         List<Enrollment> enrollments = enrollmentService.getEnrollmentsByCourse(courseId);
-        ConsoleUtil.printTitle("HỌC VIÊN ĐĂNG KÝ — " + courseOpt.get().getName());
-        ConsoleUtil.printTable(ENROLLMENT_HEADERS, toEnrollmentRows(enrollments), ENROLLMENT_WIDTHS);
-        ConsoleUtil.printInfo("Tổng số: " + enrollments.size() + " đăng ký.");
+        ConsoleUtil.printPaginatedTable("HỌC VIÊN ĐĂNG KÝ — " + courseOpt.get().getName(),
+                ENROLLMENT_HEADERS, toEnrollmentRows(enrollments), ENROLLMENT_WIDTHS);
     }
 
     // ── 2. Duyệt đăng ký ─────────────────────────────────────────
 
     private void approveEnrollment() {
-        ConsoleUtil.printTitle("DUYỆT/TỪ CHỐI ĐĂNG KÝ KHÓA HỌC");
-
-        ConsoleUtil.printTable(WAITING_ENROLLMENT_HEADERS, toWaitingEnrollmentRows(enrollmentService.getEnrollments()), WAITING_ENROLLMENT_WIDTHS);
+        ConsoleUtil.printPaginatedTable("DUYỆT/TỪ CHỐI ĐĂNG KÝ KHÓA HỌC",
+                WAITING_ENROLLMENT_HEADERS,
+                toWaitingEnrollmentRows(enrollmentService.getEnrollments()),
+                WAITING_ENROLLMENT_WIDTHS);
 
         int enrollmentId = ConsoleUtil.readInt("  Nhập ID đăng ký cần duyệt (0 để hủy): ");
         if (enrollmentId == 0) return;
@@ -101,7 +102,6 @@ public class EnrollmentManagementView {
         } else {
             ConsoleUtil.printError("Vui lòng lựa cho hợp lệ!");
         }
-
     }
 
     // ── 4. Xóa SV khỏi khóa học ────────────────────────────────────

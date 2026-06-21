@@ -78,7 +78,7 @@ CREATE TABLE enrollment (
                             student_id      INT                 NOT NULL,
                             course_id       INT                 NOT NULL,
                             registered_at   TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                            enrollmentStatus          enrollment_status   NOT NULL DEFAULT 'WAITING',
+                            status          enrollment_status   NOT NULL DEFAULT 'WAITING',
 
     -- Ràng buộc khóa ngoại
                             CONSTRAINT fk_enrollment_student
@@ -101,7 +101,7 @@ COMMENT ON COLUMN enrollment.id             IS 'Mã định danh đăng ký';
 COMMENT ON COLUMN enrollment.student_id     IS 'Mã học viên (FK → student.id)';
 COMMENT ON COLUMN enrollment.course_id      IS 'Mã khóa học (FK → course.id)';
 COMMENT ON COLUMN enrollment.registered_at  IS 'Thời điểm đăng ký';
-COMMENT ON COLUMN enrollment.enrollmentStatus         IS 'Trạng thái: WAITING | DENIED | CANCEL | CONFIRM';
+COMMENT ON COLUMN enrollment.status        IS 'Trạng thái: WAITING | DENIED | CANCEL | CONFIRM';
 
 -- ============================================================
 -- 5. Index hỗ trợ tìm kiếm

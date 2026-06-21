@@ -113,14 +113,15 @@ public class StudentDAOImpl implements IStudentDAO {
     @Override
     public void save(Student student) {
         String sql = "call add_student(?, ?, ?, ?, ?, ?, ?)";
-        try (CallableStatement cstmt = DBUtil.getConnection().prepareCall(sql)) {
+        try (Connection conn = DBUtil.getConnection();
+             CallableStatement cstmt = conn.prepareCall(sql)) {
             cstmt.setString(1, student.getName());
             cstmt.setDate(2, Date.valueOf(student.getDob()));
             cstmt.setString(3, student.getEmail());
             cstmt.setBoolean(4, student.isSex());
             cstmt.setString(5, student.getPhone());
             cstmt.setString(6, student.getPassword());
-            cstmt.registerOutParameter(7, java.sql.Types.INTEGER);
+            cstmt.registerOutParameter(7, Types.INTEGER);
             cstmt.executeUpdate();
 
             int generatedId = cstmt.getInt(7);
@@ -128,6 +129,7 @@ public class StudentDAOImpl implements IStudentDAO {
             System.out.println("[StudentDAO] Thêm sinh viên thành công, id=" + student.getId());
         } catch (SQLException e) {
             System.err.println("[StudentDAO] save lỗi: " + e.getMessage());
+            throw new RuntimeException("Không thể thêm học viên.", e);
         }
     }
 
@@ -136,7 +138,8 @@ public class StudentDAOImpl implements IStudentDAO {
     @Override
     public void update(Student student) {
         String sql = "call update_student(?, ?, ?, ?, ?)";
-        try (CallableStatement cstmt = DBUtil.getConnection().prepareCall(sql)) {
+        try (Connection conn = DBUtil.getConnection();
+             CallableStatement cstmt = conn.prepareCall(sql)) {
             cstmt.setInt(1, student.getId());
             cstmt.setString(2, student.getName());
             cstmt.setDate(3, Date.valueOf(student.getDob()));
@@ -146,6 +149,7 @@ public class StudentDAOImpl implements IStudentDAO {
             System.out.println("[StudentDAO] update — rows affected: " + rows);
         } catch (SQLException e) {
             System.err.println("[StudentDAO] update lỗi: " + e.getMessage());
+            throw new RuntimeException("Không thể cập nhật học viên.", e);
         }
     }
 
@@ -154,12 +158,14 @@ public class StudentDAOImpl implements IStudentDAO {
     @Override
     public void deleteById(int id) {
         String sql = "call delete_student(?)";
-        try (CallableStatement cstmt = DBUtil.getConnection().prepareCall(sql)) {
+        try (Connection conn = DBUtil.getConnection();
+             CallableStatement cstmt = conn.prepareCall(sql)) {
             cstmt.setInt(1, id);
             int rows = cstmt.executeUpdate();
             System.out.println("[StudentDAO] delete id=" + id + " — rows affected: " + rows);
         } catch (SQLException e) {
             System.err.println("[StudentDAO] deleteById lỗi: " + e.getMessage());
+            throw new RuntimeException("Không thể xóa học viên.", e);
         }
     }
 
@@ -239,16 +245,16 @@ public class StudentDAOImpl implements IStudentDAO {
 
     @Override
     public List<Student> findAllSorted(String field, String direction) {
-        // Whitelist để tránh SQL injection
         String safeField = field.equalsIgnoreCase("name") ? "name" : "id";
         String safeDir    = direction.equalsIgnoreCase("DESC") ? "DESC" : "ASC";
 
         List<Student> list = new ArrayList<>();
         String sql = "SELECT id, name, dob, email, sex, phone, role, password, created_at " +
                 "FROM student " +
-                "WHERE role = 'STUDENT'" +
+                "WHERE role = 'STUDENT' " +
                 "ORDER BY " + safeField + " " + safeDir;
-        try (PreparedStatement ps = DBUtil.getConnection().prepareStatement(sql);
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) list.add(mapRow(rs));
         } catch (SQLException e) {
@@ -288,7 +294,8 @@ public class StudentDAOImpl implements IStudentDAO {
     @Override
     public void updatePassword(int id, String newHashedPassword) {
         String sql = "call update_student_password(?, ?)";
-        try (CallableStatement cstmt = DBUtil.getConnection().prepareCall(sql)) {
+        try (Connection conn = DBUtil.getConnection();
+             CallableStatement cstmt = conn.prepareCall(sql)) {
             cstmt.setInt(1, id);
             cstmt.setString(2, newHashedPassword);
 
@@ -296,6 +303,7 @@ public class StudentDAOImpl implements IStudentDAO {
             System.out.println("[StudentDAO] updatePassword id=" + id + " — rows affected: " + rows);
         } catch (SQLException e) {
             System.err.println("[StudentDAO] updatePassword lỗi: " + e.getMessage());
+            throw new RuntimeException("Không thể đổi mật khẩu.", e);
         }
     }
 

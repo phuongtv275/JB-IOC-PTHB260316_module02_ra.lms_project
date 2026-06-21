@@ -51,9 +51,7 @@ public class StudentManagementView {
     // ── 1. Hiển thị danh sách ─────────────────────────────────────
 
     private void showList(List<Student> students) {
-        ConsoleUtil.printTitle("DANH SÁCH HỌC VIÊN");
-        ConsoleUtil.printTable(HEADERS, toRows(students), WIDTHS);
-        ConsoleUtil.printInfo("Tổng số: " + students.size() + " học viên.");
+        ConsoleUtil.printPaginatedTable("DANH SÁCH HỌC VIÊN", HEADERS, toRows(students), WIDTHS);
     }
 
     // ── 2. Thêm mới ───────────────────────────────────────────────
