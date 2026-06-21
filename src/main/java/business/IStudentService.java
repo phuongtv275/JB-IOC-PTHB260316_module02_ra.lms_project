@@ -40,4 +40,10 @@ public interface IStudentService {
     List<Student> searchStudent(String keyword);
 
     List<Student> getSortedStudents(String field, String direction);
+
+    /**
+     * Đổi mật khẩu — xác thực bằng mật khẩu cũ.
+     * @return thông báo lỗi nếu có, null nếu thành công
+     */
+    String changePassword(int studentId, String oldPassword, String newPassword, String confirmPassword);
 }
