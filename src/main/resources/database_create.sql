@@ -101,7 +101,7 @@ COMMENT ON COLUMN enrollment.id             IS 'Mã định danh đăng ký';
 COMMENT ON COLUMN enrollment.student_id     IS 'Mã học viên (FK → student.id)';
 COMMENT ON COLUMN enrollment.course_id      IS 'Mã khóa học (FK → course.id)';
 COMMENT ON COLUMN enrollment.registered_at  IS 'Thời điểm đăng ký';
-COMMENT ON COLUMN enrollment.enrollmentStatus         IS 'Trạng thái: WAITING | DENIED | CANCEL | CONFIRM';
+COMMENT ON COLUMN enrollment.status        IS 'Trạng thái: WAITING | DENIED | CANCEL | CONFIRM';
 
 -- ============================================================
 -- 5. Index hỗ trợ tìm kiếm

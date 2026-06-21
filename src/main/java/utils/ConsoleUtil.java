@@ -1,6 +1,7 @@
 package utils;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class ConsoleUtil {
@@ -147,6 +148,75 @@ public class ConsoleUtil {
 
     public static Scanner getScanner() {
         return scanner;
+    }
+
+    // ── Phân trang (Pagination) ───────────────────────────────────
+
+    /** Số dòng hiển thị trên 1 trang mặc định */
+    public static final int DEFAULT_PAGE_SIZE = 5;
+
+    /**
+     * Hiển thị danh sách có phân trang.
+     * @param title      Tiêu đề bảng
+     * @param headers    Tên cột
+     * @param allRows    Toàn bộ dữ liệu (đã convert sang String[][])
+     * @param widths     Độ rộng cột
+     * @param pageSize   Số dòng/trang
+     */
+    public static void printPaginatedTable(String title, String[] headers,
+                                           String[][] allRows, int[] widths, int pageSize) {
+        int total = allRows.length;
+        int totalPages = (total == 0) ? 1 : (int) Math.ceil((double) total / pageSize);
+        int currentPage = 1;
+
+        while (true) {
+            printTitle(title + "  (Trang " + currentPage + "/" + totalPages + ")");
+
+            int fromIndex = (currentPage - 1) * pageSize;
+            int toIndex = Math.min(fromIndex + pageSize, total);
+            String[][] pageRows = (total == 0)
+                    ? new String[0][]
+                    : Arrays.copyOfRange(allRows, fromIndex, toIndex);
+
+            printTable(headers, pageRows, widths);
+            printInfo("Tổng số: " + total + " dòng — Hiển thị "
+                    + (total == 0 ? 0 : fromIndex + 1) + "-" + toIndex + " / " + total);
+
+            if (totalPages <= 1) {
+                break; // Không cần điều hướng nếu chỉ có 1 trang
+            }
+
+            System.out.println();
+            System.out.printf("  %s[N]%s Trang sau   %s[P]%s Trang trước   %s[G]%s Đến trang...   %s[0]%s Đóng%n",
+                    YELLOW, RESET, YELLOW, RESET, YELLOW, RESET, YELLOW, RESET);
+            printDivider();
+
+            String choice = readLine("  Lựa chọn: ").trim().toUpperCase();
+
+            switch (choice) {
+                case "N" -> {
+                    if (currentPage < totalPages) currentPage++;
+                    else printWarning("Đã ở trang cuối.");
+                }
+                case "P" -> {
+                    if (currentPage > 1) currentPage--;
+                    else printWarning("Đã ở trang đầu.");
+                }
+                case "G" -> {
+                    int page = readInt("  Nhập số trang (1-" + totalPages + "): ");
+                    if (page >= 1 && page <= totalPages) currentPage = page;
+                    else printError("Số trang không hợp lệ.");
+                }
+                case "0" -> { return; }
+                default -> printError("Lựa chọn không hợp lệ.");
+            }
+        }
+    }
+
+    /** Overload dùng pageSize mặc định */
+    public static void printPaginatedTable(String title, String[] headers,
+                                           String[][] allRows, int[] widths) {
+        printPaginatedTable(title, headers, allRows, widths, DEFAULT_PAGE_SIZE);
     }
 }
 

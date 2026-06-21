@@ -59,7 +59,7 @@ public class StatisticsView {
 
         Map<String, Long> data = enrollmentService.getStudentCountPerCourse();
         String[] headers = {"Khóa học", "Số học viên đăng ký"};
-        int[] widths = {40, 20};
+        int[] widths = {60, 20};
 
         String[][] rows = data.entrySet().stream()
                 .map(e -> new String[]{e.getKey(), String.valueOf(e.getValue())})
@@ -75,7 +75,7 @@ public class StatisticsView {
 
         List<Object[]> top5 = enrollmentService.getTop5CoursesByEnrollment();
         String[] headers = {"Hạng", "ID", "Tên khóa học", "Số học viên"};
-        int[] widths = {5, 4, 30, 12};
+        int[] widths = {5, 4, 45, 12};
 
         String[][] rows = new String[top5.size()][];
         for (int i = 0; i < top5.size(); i++) {
@@ -97,7 +97,7 @@ public class StatisticsView {
 
         List<Object[]> data = enrollmentService.getCoursesAboveThreshold(10);
         String[] headers = {"ID", "Tên khóa học", "Số học viên"};
-        int[] widths = {4, 30, 12};
+        int[] widths = {4, 45, 12};
 
         String[][] rows = data.stream()
                 .map(row -> new String[]{
