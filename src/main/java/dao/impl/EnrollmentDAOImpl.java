@@ -7,9 +7,7 @@ import model.Enrollment;
 import utils.DBUtil;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class EnrollmentDAOImpl implements IEnrollmentDAO {
 
@@ -200,6 +198,153 @@ public class EnrollmentDAOImpl implements IEnrollmentDAO {
             System.err.println("[EnrollmentDAO] findByCourseId lỗi: " + e.getMessage());
         }
         return list;
+    }
+    // ── countAllCourses ───────────────────────────────────────────
+
+    @Override
+    public int countAllCourses() {
+        Connection conn = DBUtil.getConnection();
+
+        try {
+            conn.setAutoCommit(false);
+            try (CallableStatement cs = conn.prepareCall("{? = call fn_count_all_courses()}")) {
+                cs.registerOutParameter(1, Types.INTEGER);
+                cs.execute();
+
+                int total = cs.getInt(1);
+                conn.commit();
+                conn.setAutoCommit(true);
+                return total;
+            }
+        } catch (SQLException e) {
+            rollbackQuietly(conn);
+            System.err.println("[EnrollmentDAO] countAllCourses lỗi: " + e.getMessage());
+            return 0;
+        }
+    }
+
+    // ── countAllStudents ──────────────────────────────────────────
+
+    @Override
+    public int countAllStudents() {
+        Connection conn = DBUtil.getConnection();
+        try {
+            conn.setAutoCommit(false);
+            try (CallableStatement cs = conn.prepareCall("{? = call fn_count_all_students()}")) {
+                cs.registerOutParameter(1, Types.INTEGER);
+                cs.execute();
+
+                int total = cs.getInt(1);
+                conn.commit();
+                conn.setAutoCommit(true);
+                return total;
+            }
+        } catch (SQLException e) {
+            rollbackQuietly(conn);
+            System.err.println("[EnrollmentDAO] countAllStudents lỗi: " + e.getMessage());
+            return 0;
+        }
+    }
+
+    // ── countStudentsPerCourse ────────────────────────────────────
+
+    @Override
+    public Map<Integer, Long> countStudentsPerCourse() {
+        Map<Integer, Long> result = new LinkedHashMap<>();
+        Connection conn = DBUtil.getConnection();
+
+        try {
+            conn.setAutoCommit(false);
+            try (CallableStatement cs = conn.prepareCall("{? = call fn_count_students_per_course()}")) {
+                cs.registerOutParameter(1, Types.REF_CURSOR);
+                cs.execute();
+
+                try (ResultSet rs = (ResultSet) cs.getObject(1)) {
+                    while (rs.next()) {
+                        result.put(rs.getInt("id"), rs.getLong("cnt"));
+                    }
+                }
+                conn.commit();
+                conn.setAutoCommit(true);
+            }
+        } catch (SQLException e) {
+            rollbackQuietly(conn);
+            System.err.println("[EnrollmentDAO] countStudentsPerCourse lỗi: " + e.getMessage());
+        }
+        return result;
+    }
+
+    // ── topCoursesByEnrollment ────────────────────────────────────
+
+    @Override
+    public List<Object[]> topCoursesByEnrollment(int limit) {
+        List<Object[]> result = new ArrayList<>();
+        Connection conn = DBUtil.getConnection();
+
+        try {
+            conn.setAutoCommit(false);
+            try (CallableStatement cs = conn.prepareCall("{? = call fn_top_courses_by_enrollment(?)}")) {
+                cs.registerOutParameter(1, Types.REF_CURSOR);
+                cs.setInt(2, limit);
+                cs.execute();
+
+                try (ResultSet rs = (ResultSet) cs.getObject(1)) {
+                    while (rs.next()) {
+                        result.add(new Object[]{rs.getInt("id"), rs.getString("name"), rs.getLong("cnt")});
+                    }
+                }
+                conn.commit();
+                conn.setAutoCommit(true);
+            }
+        }
+         catch (SQLException e) {
+            rollbackQuietly(conn);
+            System.err.println("[EnrollmentDAO] topCoursesByEnrollment lỗi: " + e.getMessage());
+        }
+        return result;
+    }
+
+    // ── coursesWithEnrollmentAbove ────────────────────────────────
+
+    @Override
+    public List<Object[]> coursesWithEnrollmentAbove(int threshold) {
+        List<Object[]> result = new ArrayList<>();
+        Connection conn = DBUtil.getConnection();
+        try {
+            conn.setAutoCommit(false);
+            try (CallableStatement cs = conn.prepareCall(
+                    "{? = call fn_courses_with_enrollment_above(?)}")) {
+                cs.registerOutParameter(1, Types.REF_CURSOR);
+                cs.setInt(2, threshold);
+                cs.execute();
+
+                try (ResultSet rs = (ResultSet) cs.getObject(1)) {
+                    while (rs.next()) {
+                        result.add(new Object[]{
+                                rs.getInt("id"),
+                                rs.getString("name"),
+                                rs.getLong("cnt")
+                        });
+                    }
+                }
+                conn.commit();
+                conn.setAutoCommit(true);
+            }
+        } catch (SQLException e) {
+            rollbackQuietly(conn);
+            System.err.println("[EnrollmentDAO] coursesWithEnrollmentAbove lỗi: " + e.getMessage());
+        }
+        return result;
+    }
+
+    // ── Helpers ──────────────────────────────────────────────────
+
+    private void rollbackQuietly(Connection conn) {
+        try {
+            conn.rollback();
+        } catch (SQLException ex) {
+            System.err.println("[EnrollmentDAO] rollback lỗi: " + ex.getMessage());
+        }
     }
 
     // ── Row mapper ────────────────────────────────────────────────

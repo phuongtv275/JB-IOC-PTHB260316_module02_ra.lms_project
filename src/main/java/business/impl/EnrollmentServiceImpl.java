@@ -3,22 +3,29 @@ package business.impl;
 import business.IEnrollmentService;
 import dao.IEnrollmentDAO;
 import dao.ICourseDAO;
+import dao.IStudentDAO;
 import dao.impl.EnrollmentDAOImpl;
 import dao.impl.CourseDAOImpl;
+import dao.impl.StudentDAOImpl;
 import enums.EnrollmentStatus;
+import model.Course;
 import model.Enrollment;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class EnrollmentServiceImpl implements IEnrollmentService {
 
     private final IEnrollmentDAO enrollmentDAO;
     private final ICourseDAO courseDAO;
+    private final IStudentDAO studentDAO;
 
     public EnrollmentServiceImpl() {
         this.enrollmentDAO = new EnrollmentDAOImpl();
         this.courseDAO     = new CourseDAOImpl();
+        this.studentDAO    = new StudentDAOImpl();
     }
 
     // ── getEnrollmentsByStudent ───────────────────────────────────
@@ -135,5 +142,42 @@ public class EnrollmentServiceImpl implements IEnrollmentService {
 
         enrollmentDAO.deleteById(enrollmentId);
         return null;
+    }
+
+    // ── getOverallStats ───────────────────────────────────────────
+
+    @Override
+    public int[] getOverallStats() {
+        return new int[]{ enrollmentDAO.countAllCourses(), enrollmentDAO.countAllStudents() };
+    }
+
+    // ── getStudentCountPerCourse ──────────────────────────────────
+
+    @Override
+    public Map<String, Long> getStudentCountPerCourse() {
+        Map<Integer, Long> raw = enrollmentDAO.countStudentsPerCourse();
+        Map<String, Long> result = new LinkedHashMap<>();
+
+        for (Map.Entry<Integer, Long> entry : raw.entrySet()) {
+            String courseName = courseDAO.findById(entry.getKey())
+                    .map(Course::getName)
+                    .orElse("Khóa học #" + entry.getKey());
+            result.put("[" + entry.getKey() + "] " + courseName, entry.getValue());
+        }
+        return result;
+    }
+
+    // ── getTop5CoursesByEnrollment ────────────────────────────────
+
+    @Override
+    public List<Object[]> getTop5CoursesByEnrollment() {
+        return enrollmentDAO.topCoursesByEnrollment(5);
+    }
+
+    // ── getCoursesAboveThreshold ──────────────────────────────────
+
+    @Override
+    public List<Object[]> getCoursesAboveThreshold(int threshold) {
+        return enrollmentDAO.coursesWithEnrollmentAbove(threshold);
     }
 }
