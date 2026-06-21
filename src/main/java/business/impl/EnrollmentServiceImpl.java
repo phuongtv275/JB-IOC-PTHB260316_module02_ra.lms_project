@@ -53,6 +53,9 @@ public class EnrollmentServiceImpl implements IEnrollmentService {
 
     @Override
     public String registerCourse(int studentId, int courseId) {
+        if (studentDAO.findById(studentId).isEmpty())
+            return "Không tìm thấy học viên với ID = " + studentId;
+
         Optional<model.Course> courseOpt = courseDAO.findById(courseId);
         if (courseOpt.isEmpty())
             return "Không tìm thấy khóa học với ID = " + courseId;

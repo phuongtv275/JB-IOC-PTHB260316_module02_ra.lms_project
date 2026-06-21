@@ -65,11 +65,15 @@ public class CourseView {
         String duration   = ConsoleUtil.readLine("  Thời lượng (h) : ");
         String instructor = ConsoleUtil.readLine("  Giảng viên     : ");
 
-        String error = courseService.addCourse(name, duration, instructor);
-        if (error != null) {
-            ConsoleUtil.printError(error);
-        } else {
-            ConsoleUtil.printSuccess("Thêm khóa học thành công!");
+        try {
+            String error = courseService.addCourse(name, duration, instructor);
+            if (error != null) {
+                ConsoleUtil.printError(error);
+            } else {
+                ConsoleUtil.printSuccess("Thêm khóa học thành công!");
+            }
+        } catch (RuntimeException e) {
+            ConsoleUtil.printError("Lỗi hệ thống: " + e.getMessage());
         }
     }
 

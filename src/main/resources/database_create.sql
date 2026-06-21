@@ -78,7 +78,7 @@ CREATE TABLE enrollment (
                             student_id      INT                 NOT NULL,
                             course_id       INT                 NOT NULL,
                             registered_at   TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                            enrollmentStatus          enrollment_status   NOT NULL DEFAULT 'WAITING',
+                            status          enrollment_status   NOT NULL DEFAULT 'WAITING',
 
     -- Ràng buộc khóa ngoại
                             CONSTRAINT fk_enrollment_student
