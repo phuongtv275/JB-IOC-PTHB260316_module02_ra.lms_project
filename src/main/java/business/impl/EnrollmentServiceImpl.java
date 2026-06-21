@@ -1,0 +1,79 @@
+package business.impl;
+
+import business.IEnrollmentService;
+import dao.IEnrollmentDAO;
+import dao.ICourseDAO;
+import dao.impl.EnrollmentDAOImpl;
+import dao.impl.CourseDAOImpl;
+import enums.EnrollmentStatus;
+import model.Enrollment;
+
+import java.util.List;
+import java.util.Optional;
+
+public class EnrollmentServiceImpl implements IEnrollmentService {
+
+    private final IEnrollmentDAO enrollmentDAO;
+    private final ICourseDAO courseDAO;
+
+    public EnrollmentServiceImpl() {
+        this.enrollmentDAO = new EnrollmentDAOImpl();
+        this.courseDAO     = new CourseDAOImpl();
+    }
+
+    // ── getEnrollmentsByStudent ───────────────────────────────────
+
+    @Override
+    public List<Enrollment> getEnrollmentsByStudent(int studentId) {
+        return enrollmentDAO.findByStudentId(studentId);
+    }
+
+    // ── getSortedEnrollmentsByStudent ─────────────────────────────
+
+    @Override
+    public List<Enrollment> getSortedEnrollmentsByStudent(int studentId, String field, String direction) {
+        return enrollmentDAO.findByStudentIdSorted(studentId, field, direction);
+    }
+
+    // ── registerCourse ────────────────────────────────────────────
+
+    @Override
+    public String registerCourse(int studentId, int courseId) {
+        Optional<model.Course> courseOpt = courseDAO.findById(courseId);
+        if (courseOpt.isEmpty())
+            return "Không tìm thấy khóa học với ID = " + courseId;
+
+        if (enrollmentDAO.existsByStudentAndCourse(studentId, courseId))
+            return "Bạn đã đăng ký khóa học này rồi.";
+
+        Enrollment enrollment = new Enrollment();
+        enrollment.setStudentId(studentId);
+        enrollment.setCourseId(courseId);
+        enrollment.setStatus(EnrollmentStatus.WAITING);
+
+        enrollmentDAO.save(enrollment);
+        return null;
+    }
+
+    // ── cancelEnrollment ──────────────────────────────────────────
+
+    @Override
+    public String cancelEnrollment(int enrollmentId, int studentId) {
+        Optional<Enrollment> opt = enrollmentDAO.findById(enrollmentId);
+        if (opt.isEmpty())
+            return "Không tìm thấy đăng ký với ID = " + enrollmentId;
+
+        Enrollment enrollment = opt.get();
+
+        // Chỉ cho phép học viên hủy chính đăng ký của mình
+        if (enrollment.getStudentId() != studentId)
+            return "Bạn không có quyền hủy đăng ký này.";
+
+        if (enrollment.getStatus() != EnrollmentStatus.WAITING)
+            return "Chỉ có thể hủy đăng ký đang ở trạng thái WAITING (chưa được xác nhận). " +
+                    "Trạng thái hiện tại: " + enrollment.getStatus();
+
+        enrollmentDAO.updateStatus(enrollmentId, EnrollmentStatus.CANCEL);
+        return null;
+    }
+}
