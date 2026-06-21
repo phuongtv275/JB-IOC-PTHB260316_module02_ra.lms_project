@@ -35,6 +35,13 @@ public class EnrollmentServiceImpl implements IEnrollmentService {
         return enrollmentDAO.findByStudentIdSorted(studentId, field, direction);
     }
 
+    // ── getEnrollmentsByStudent ───────────────────────────────────
+
+    @Override
+    public List<Enrollment> getEnrollments() {
+        return enrollmentDAO.getEnrollments();
+    }
+
     // ── registerCourse ────────────────────────────────────────────
 
     @Override
@@ -74,6 +81,59 @@ public class EnrollmentServiceImpl implements IEnrollmentService {
                     "Trạng thái hiện tại: " + enrollment.getStatus();
 
         enrollmentDAO.updateStatus(enrollmentId, EnrollmentStatus.CANCEL);
+        return null;
+    }
+
+    // ── getEnrollmentsByCourse (Admin) ──────────────────────────────
+
+    @Override
+    public List<Enrollment> getEnrollmentsByCourse(int courseId) {
+        return enrollmentDAO.findByCourseId(courseId);
+    }
+
+    // ── approveEnrollment (Admin) ────────────────────────────────────
+
+    @Override
+    public String approveEnrollment(int enrollmentId) {
+        Optional<Enrollment> opt = enrollmentDAO.findById(enrollmentId);
+        if (opt.isEmpty())
+            return "Không tìm thấy đăng ký với ID = " + enrollmentId;
+
+        Enrollment enrollment = opt.get();
+        if (enrollment.getStatus() != EnrollmentStatus.WAITING)
+            return "Chỉ có thể duyệt đăng ký đang ở trạng thái WAITING. " +
+                    "Trạng thái hiện tại: " + enrollment.getStatus();
+
+        enrollmentDAO.updateStatus(enrollmentId, EnrollmentStatus.CONFIRM);
+        return null;
+    }
+
+    // ── denyEnrollment (Admin) ───────────────────────────────────────
+
+    @Override
+    public String denyEnrollment(int enrollmentId) {
+        Optional<Enrollment> opt = enrollmentDAO.findById(enrollmentId);
+        if (opt.isEmpty())
+            return "Không tìm thấy đăng ký với ID = " + enrollmentId;
+
+        Enrollment enrollment = opt.get();
+        if (enrollment.getStatus() != EnrollmentStatus.WAITING)
+            return "Chỉ có thể từ chối đăng ký đang ở trạng thái WAITING. " +
+                    "Trạng thái hiện tại: " + enrollment.getStatus();
+
+        enrollmentDAO.updateStatus(enrollmentId, EnrollmentStatus.DENIED);
+        return null;
+    }
+
+    // ── removeStudentFromCourse (Admin xóa hẳn bản ghi) ──────────────
+
+    @Override
+    public String removeStudentFromCourse(int enrollmentId) {
+        Optional<Enrollment> opt = enrollmentDAO.findById(enrollmentId);
+        if (opt.isEmpty())
+            return "Không tìm thấy đăng ký với ID = " + enrollmentId;
+
+        enrollmentDAO.deleteById(enrollmentId);
         return null;
     }
 }
